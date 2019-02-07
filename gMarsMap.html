@@ -42,17 +42,9 @@
 			Mars_nomenclature_shp : 'http://planetarynames.wr.usgs.gov/shapefiles/MARS_nomenclature.zip'
 		}
 	}
-
-	var NASA_WMS;
+	
 	var gMars;
 	var gr_gr;
-
-function WMS_json_ok(req){
-	NASA_WMS = JSON.parse(req.currentTarget.responseText);
-	IO_ok.NASA_WMS = true;
-	console.log('NASA WMS ok');	
-	All_ok();
-}
 
 function All_ok(){
 	if (!UAI_mars.status || !IO_json.status.gMars)
@@ -70,7 +62,7 @@ function All_ok(){
 	];	
 	var baseLayers = [
 		{
-			group: 'NASA WMS',
+			group: 'GoogleMars WMS',
 			collapsed: false,
 			layers: L.TileLayer.GoogleMarsWMS.defaultGroup()
 		}
