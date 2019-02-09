@@ -39,7 +39,8 @@
 	var Config = {
 		URI: {
 			data : "https://raw.githubusercontent.com/mkgrgis/OpenPlanetaryData/master/",			
-			Mars_nomenclature_shp : 'http://planetarynames.wr.usgs.gov/shapefiles/MARS_nomenclature.zip'
+			Mars_nomenclature_shp : 'http://planetarynames.wr.usgs.gov/shapefiles/MARS_nomenclature.zip',
+			req1 : '/opt/♂/Google ⬚'
 		}
 	}
 	
@@ -65,7 +66,12 @@ function All_ok(){
 			group: 'GoogleMars WMS',
 			collapsed: false,
 			layers: L.TileLayer.GoogleMarsWMS.defaultGroup()
-		}
+		},
+		/*{
+			group: 'GoogleMars WMS',
+			collapsed: false,
+			layers: GoogleMarsLocalGroup(Config.URI.req1)
+		}*/
 	];	
 
 	var panelLayers = new L.Control.PanelLayers(baseLayers, overLayers, {
