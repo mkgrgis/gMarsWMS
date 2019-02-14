@@ -5,24 +5,34 @@
  * @param {*} retf function after ok
  * @param {*} context context object for using in function after ok
  */
-function IO_json (code, URI, retf, context){
+
+function IO_xml (code, URI, retf, context){ 
+	IO_json (code, URI, retf, context, 'application/xml');
+}
+
+function IO_json (code, URI, retf, context, type = 'application/json'){
 	IO_json.status[code] = false;
 	var req = new XMLHttpRequest();
-	req.overrideMimeType("application/json");
+	req.overrideMimeType(type);
 	req._context = context;
 	req._retf = retf;
-	req._code = code;
+	req._code = code;	
 	req.open('GET', URI, true);
 	req.addEventListener('load', function(req) {
-		var c = req.currentTarget._context;
 		var code = req.currentTarget._code;
 		IO_json.status[code] = true;
+		if (req.currentTarget.status != 200) {
+			// обработать ошибку
+			alert( '' + '\n' +req.currentTarget.status + ': ' + req.currentTarget.statusText ); 			
+		  } else {
+		var c = req.currentTarget._context;		
 		console.log( code + " ✔")
 		retf ({
 			req: req,
 			context : c
 			});
 		}
+	}
 	);
 	req.send(null);
 }
@@ -36,13 +46,13 @@ IO_json.status = {};
  * @param {*} norm180 coord. 1= -180<*<180,  0 = 0<*<360
  * @param {*} lingua lingua
  */
-function UAI_module(leaflet_map, paths, retf, norm180, lingua){
+function UAI_module(leaflet_map, paths, retf, options){
 	this.status = false;
-	this.lingua = lingua;
+	this.options = options;
+	this.lingua = (options && options.lingua) ? lingua : navigator.language.split('-')[0];
 	this._lmap = leaflet_map;
 	this._retf = retf;
-	this.n180 = (norm180 ? true : false);	
-	this.paths = paths;
+	this.paths = paths;	
 	this._knt = [];
 	IO_json(
 		'nom_univ', 
@@ -57,7 +67,9 @@ function UAI_module(leaflet_map, paths, retf, norm180, lingua){
 	var planet = pp[pp.length - 1].split('_')[0];
 	delete pp;
 	UAI_module.req[planet] = this;
-	shp(paths.planet_shp).then(UAI_module.shp_ok);
+	shp(paths.planet_shp).then(UAI_module.shp_ok, UAI_module.shp_non).catch((error) => {
+		console.log(error); // вывести ошибку; 
+	});
 
 	if (typeof paths.planet_wkt_json != 'undefined'){
 		IO_json(
@@ -79,6 +91,12 @@ UAI_module.shp_ok = function(data) {
 	var p =data.fileName.split('_')[0];
 	var el = UAI_module.req[p];
 	el.shp_ok(data);
+}
+
+UAI_module.shp_non = function(data) {
+	console.log('shp ✘ :' + data.message);
+	var x = this;
+	alert ('UAI shp ✘ :' + data.message);
 }
  
 UAI_module.prototype.shp_ok = function(data) {
@@ -109,7 +127,7 @@ UAI_module.prototype.nomencl_ok = function() {
 	var UAI_layers = [];
  
 	UAI_layers.push({
-		active: true,
+		//active: (this.options.active == true),
 		name: "∀ UAI",
 		layer: this.shpfile
 	});
@@ -121,7 +139,7 @@ UAI_module.prototype.nomencl_ok = function() {
 		var text = '';
 		text = this.nomencl_descr(k, text);
 		text += " (" + k.toLowerCase() + ")";
-		UAI_layers.push({ // active: true,
+		UAI_layers.push({
 			name: text,
 			layer: UAI_l
 		});	 
@@ -218,7 +236,7 @@ var utf8Decode=function(utftext){var string="";var i=0;var c=c1=c2=0;while(i<utf
 		fp.center = new L.LatLng(fp.center_lat, fp.center_lon);
 		delete fp.center_lat;
 		delete fp.center_lon;	  
-		if (this.n180 && layer._latlng.lng > 180.0)
+		if (this.options && this.options.norm180 && layer._latlng.lng > 180.0)
 			layer._latlng.lng -= 360.0;
 		layer.options.icon = L.icon({
 			iconUrl: this.paths.baloon_directory + '/' + categ.toLowerCase() +'.png',
@@ -331,7 +349,7 @@ UAI_module.prototype.info = function (fp, layer) {
 }
  
 UAI_module.prototype.norm180 = function (a) {
-	if (! this.n180)
+	if (! this.options || ! this.options.norm180)
 		return a;
 	var n = [];
 	for (var i in a){
