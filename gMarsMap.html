@@ -9,14 +9,35 @@
 	<link rel="stylesheet" href="lib/leaflet-search.css"/>
 	<link rel="stylesheet" href="lib/leaflet-panel-layers.css"/>	
 	<script src="lib/leaflet.js"></script>
-	<script src="lib/L.Graticule.js"></script>
 	<script src="lib/leaflet-search.js"></script>
 	<script src="lib/leaflet-panel-layers.js"></script>
 	<script src="js/gMarsLayer.js"></script>
 	<script src="js/OpenPlanetWMS.js"></script>
+	<script src="lib/leaflet.latlng-graticule.js"></script>
 </head>
 <style>
-	.coord{ width:100px; height:25px; float:left; margin: 0; padding: 0;}
+	.coord {
+		margin: 0px;
+		padding: 0px;
+		display:inline;
+		font-size: 10pt;		
+	}
+	.icon {
+		display: inline-block;
+		margin: 0px;
+		height: 16px;
+		width: 16px;
+		background-color: #ccc;
+	}
+	.icon-usgs {
+		background: url('images/usgs.png') center center no-repeat;
+	}
+	.icon-nasa {
+		background: url('images/nasa.png') center center no-repeat;
+	}
+	.icon-opm {
+		background: url('images/opm.png') center center no-repeat;
+	}
 </style>
 <body>
     <h2>Demo for <a href = 'https://github.com/mkgrgis/gMarsWMS'>gMarsWMS</a></h2>	
@@ -52,27 +73,36 @@ function All_ok(){
 		return;
 	var G_pref = 'https://www.google.com/mars/';
 	var gr_gr = default_graticule();
+	var baseLayers = [];
+
+	var opmAttribution = '<a href="https://github.com/openplanetary/opm/wiki/OPM-Basemaps" target="blank">OpenPlanetaryMap</a>';
 	var overLayers = [
-		gMars_group(gMars, G_pref),
-		UAI_mars.UAI_layers,		
+		UAI_mars.UAI_layers,
+		// gMars_group(gMars, G_pref),
 		{
 			group: "#",
-			collapsed: true,
+			collapsed: false,
 			layers: gr_gr
-		}
-	];	
-	var baseLayers = [
-		{
-			group: 'GoogleMars WMS',
-			collapsed: false,
-			layers: L.TileLayer.GoogleMarsWMS.defaultGroup()
 		},
-		/*{
-			group: 'GoogleMars WMS',
-			collapsed: false,
-			layers: GoogleMarsLocalGroup(Config.URI.req1)
-		}*/
-	];	
+		OPM_overlayers()
+		];
+
+	baseLayers[0] = OPM_layers_mars();
+
+	for (var l in baseLayers[0].layers){
+		baseLayers[0].layers[l].icon = '<i class="icon icon-opm"></i>';
+	}
+			
+	baseLayers[1] =	{
+		group: 'GoogleMars WMS',
+		collapsed: false,
+		layers: L.TileLayer.GoogleMarsWMS.defaultGroup()
+		};
+	baseLayers[2] = {
+		group: 'GoogleMars local',
+		collapsed: false,
+		layers: GoogleMarsLocalGroup(Config.URI.req1)
+		};
 
 	var panelLayers = new L.Control.PanelLayers(baseLayers, overLayers, {
 		compact: true,		

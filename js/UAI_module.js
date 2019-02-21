@@ -371,8 +371,10 @@ UAI_module.prototype.wktPolygon = function (p, id){
 }
  
 UAI_module.prototype.wktProcess = function(id, geoJson) {	 
+	if (typeof this.paths.planet_wkt_json == 'undefined')
+		return;
 	if (typeof this.UAI_kontur == 'undefined' || typeof this.UAI_kontur[id] == 'undefined'){
-			console.warn('Nenio elemento!');
+			console.warn('Non wkt ' + id + ' !');
 			return;
 	}
 	var el_wkt = this.UAI_kontur[id];
