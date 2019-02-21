@@ -42,20 +42,22 @@
 <body>
     <h2>Demo for <a href = 'https://github.com/mkgrgis/gMarsWMS'>gMarsWMS</a></h2>	
 	<div id="mapid" style="width: 98vw; height: 800px;"></div>
-	<div style="width:400px; height:25px; margin: 0; margin-left: 0px; padding: 0;">
-		<p class="coord" id="lat"></p>
-		<p class="coord">&nbsp</p>
-		<p class="coord" id="lon"> </p>
-	</div>
-	<div style="width:400px; height:25px; margin: 0; margin-left: 250px; padding: 0;">
-		<p class="coord" id="lat_60"></p>
-		<p class="coord">&nbsp</p>
-		<p class="coord" id="lon_60"> </p>
-	</div>
-	</br>
-	<div id="legend" style="width: 98vw; height: 100px; display:none; margin: 0; margin-left: 0px; padding: 0;">
-		<img style="height: 50px;" src="images/800px-MOLA_maps_color_elevation_key.png">
-	</div>
+	<div name="coord" style="display:inline-block;">
+		<div style="display:inline-block; width:175px; ">
+			<p class="coord" id="lat"></p>
+			<p class="coord">&nbsp</p>
+			<p class="coord" id="lon"></p>
+		</div>
+		<div style="display:inline-block; width:175px;">
+			<p class="coord" id="lat_60"></p>
+			<p class="coord">&nbsp</p>
+			<p class="coord" id="lon_60"> </p>
+		</div>
+		</br>
+		<div id="legend" style="width: 98vw; height: 100px; display:none; margin: 0; margin-left: 0px; padding: 0;">
+			<img style="height: 50px;" src="images/800px-MOLA_maps_color_elevation_key.png">
+		</div>
+	</div>	
 <script>
 	var Config = {
 		URI: {
@@ -143,19 +145,21 @@ planetMap.doubleClickZoom.disable();
 var UAI_mars = new UAI_module(
 	planetMap,
 	{
-		nomenclature_json : Config.URI.data + '/universal/nomenclature.json',
-		planet_shp : Config.URI.data + '/♂/MARS_nomenclature.zip',
-		planet_wkt_json : Config.URI.data + '/♂/MARS_nomenclature.json',
+		nomenclature_json: Config.URI.data + '/universal/nomenclature.json',
+		planet_shp: Config.URI.data + '/♂/MARS_nomenclature.zip',
+		planet_wkt_json: Config.URI.data + '/♂/MARS_nomenclature.json',
 		baloon_directory : 'https://raw.githubusercontent.com/mkgrgis/openPlanetWMS/master/mark'
 	},
-	function (){
+	function () {
 		planetMap.addControl(UAI_mars.search_layer());
 		All_ok();
 	},
-	true,
-	lingua
+	{
+		norm180: true,
+		lingua: lingua,
+		active: false
+	}
 );
-
 IO_json(
 	'gMars', 
 	'https://raw.githubusercontent.com/mkgrgis/gMarsWMS/master/data/gMars.json',
